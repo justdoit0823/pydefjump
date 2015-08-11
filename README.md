@@ -40,7 +40,7 @@ Put the pydefjump.el to your emacs load path and then add following emacs lisp c
 
 into your .emacs file.
 
-	(add-to-list 'load-path "~/.emacd.d/pydefjump")
+	(add-to-list 'load-path "~/.emacs.d/pydefjump")
 	(require 'pydefjump)
 	(add-hook 'python-mode-hook 'jump-python)
 	(global-set-key (kbd "C-c d") 'jump-to-def)
