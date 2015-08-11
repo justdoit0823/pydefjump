@@ -11,7 +11,7 @@
 (require 'epc)
 
 
-(defvar jump-exec-file "~/.emacs.d/pydefjump/py_def_list_server.py")
+(defvar jump-exec-file (expand-file-name "~/.emacs.d/pydefjump/py_def_list_server.py"))
 
 
 (defun set-jump-exec-file (filename)
