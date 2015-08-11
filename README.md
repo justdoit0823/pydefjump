@@ -43,6 +43,5 @@ into your .emacs file.
 	(add-to-list 'load-path "~/.emacs.d/pydefjump")
 	(require 'pydefjump)
 	(add-hook 'python-mode-hook 'jump-python)
-	(global-set-key (kbd "C-c d") 'jump-to-def)
 
 Then you can use C-c d in any python module buffer to jump.

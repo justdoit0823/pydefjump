@@ -27,11 +27,16 @@
 (defun jump-to-def ()
   "fast way to jump to def position in python"
   (interactive)
-  (let ((def-keys (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) nil)))
-	)
-    (setq-local def-name (completing-read "def name: " def-keys))
-    (setq-local def-pos (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) def-name)))
-    (goto-line (car def-pos)) (move-to-column (nth 1 def-pos))))
+  (if (not (buffer-file-name))
+      (message "buffer no file name")
+    (if (not (equal (file-name-extension (buffer-file-name)) "py"))
+	(message "not python file")
+      (let ((def-keys (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) nil)))
+	    )
+	(setq-local def-name (completing-read "def name: " def-keys))
+	(setq-local def-pos (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) def-name)))
+	(goto-line (car def-pos))
+	(move-to-column (nth 1 def-pos))))))
 
 
 (defun jump-refresh-def ()
@@ -41,7 +46,8 @@
 
 (defun jump-python ()
   "jump hook in python"
-  (add-hook 'after-save-hook 'jump-refresh-def t t))
+  (add-hook 'after-save-hook 'jump-refresh-def t t)
+  (local-set-key (kbd "C-c d") 'jump-to-def))
 
 
 (provide 'pydefjump)
