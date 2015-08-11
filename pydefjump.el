@@ -29,7 +29,7 @@
   (interactive)
   (if (not (buffer-file-name))
       (message "buffer no file name")
-    (if (equal (file-name-extension (buffer-file-name)) "py")
+    (if (not (equal (file-name-extension (buffer-file-name)) "py"))
 	(message "not python file")
       (let ((def-keys (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) nil)))
 	    )
@@ -47,7 +47,7 @@
 (defun jump-python ()
   "jump hook in python"
   (add-hook 'after-save-hook 'jump-refresh-def t t)
-  (local-set-key "C-c d" 'jump-to-def))
+  (local-set-key (kbd "C-c d") 'jump-to-def))
 
 
 (provide 'pydefjump)
