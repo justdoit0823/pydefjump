@@ -41,14 +41,20 @@
 
 (defun jump-refresh-def ()
   "refresh jump def pos when buffer post"
-  (message "refresh current buffer file def")
   (epc:call-sync def-epc 'refresh_file_def_pos (list (buffer-file-name))))
+
+
+(defun jump-refresh-def-wrap ()
+  "refresh jump def pos command"
+  (interactive)
+  (message "refresh current buffer file def")
+  (jump-refresh-def))
 
 
 (defun jump-python ()
   "jump hook in python"
   (add-hook 'after-save-hook 'jump-refresh-def t t)
-  (local-set-key (kbd "C-c r") 'jump-refresh-def)
+  (local-set-key (kbd "C-c r") 'jump-refresh-def-wrap)
   (local-set-key (kbd "C-c d") 'jump-to-def))
 
 
