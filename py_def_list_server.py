@@ -32,7 +32,7 @@ def get_file_def_pos(filename, keyword=None):
         def_map = file_def_cache[filename]
 
     if not keyword:
-        return def_map.keys()
+        return tuple(def_map.keys())
     return def_map[keyword]
 
 

@@ -7,21 +7,38 @@
 ;; This project's homepage is at https://github.com/justdoit0823/pydefjump
 
 
-
 (require 'epc)
 
 
 (defvar jump-exec-file (expand-file-name "~/.emacs.d/pydefjump/py_def_list_server.py"))
 
 
+(defvar jump-python-execute "python2.7")
+
+
 (defun set-jump-exec-file (filename)
   "set jump executable file"
   (setq jump-exec-file filename)
-  (setq def-epc (epc:start-epc "python" (list jump-exec-file))))
+  (setq def-epc (jump-start-epc)))
+
+
+(defun jump-start-epc ()
+  "start jump epc server"
+  (epc:start-epc jump-python-execute (list jump-exec-file)))
+
+
+(defun jump-stop-epc ()
+  "stop jump epc server"
+  (epc:stop-epc def-epc))
+
+
+(defun jump-reset-epc ()
+  (jump-stop-epc)
+  (setq def-epc (jump-start-epc)))
 
 
 (defvar def-epc
-  (epc:start-epc "python" (list jump-exec-file)))
+  (jump-start-epc))
 
 
 (defun jump-to-def ()
@@ -56,6 +73,18 @@
   (add-hook 'after-save-hook 'jump-refresh-def t t)
   (local-set-key (kbd "C-c r") 'jump-refresh-def-wrap)
   (local-set-key (kbd "C-c d") 'jump-to-def))
+
+
+(defun jump-python-switch ()
+  "switch jump python version between 2 and 3"
+  (interactive)
+  (if (string-equal jump-python-execute "python2.7")
+      (progn (setq jump-python-execute "python3")
+	     (jump-reset-epc)
+	     (message "jump python switch to python 3"))
+    (progn (setq jump-python-execute "python2.7")
+	   (jump-reset-epc)
+	   (message "jump python switch to python 2"))))
 
 
 (provide 'pydefjump)
