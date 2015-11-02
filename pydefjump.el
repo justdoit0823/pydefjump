@@ -29,15 +29,21 @@
 
 (defun jump-stop-epc ()
   "stop jump epc server"
-  (epc:stop-epc def-epc))
+  (epc:stop-epc jump-epc))
 
 
 (defun jump-reset-epc ()
   (jump-stop-epc)
-  (setq def-epc (jump-start-epc)))
+  (setq jump-epc (jump-start-epc)))
 
 
-(defvar def-epc
+(defun jump-call (method args)
+  "epc call wrapper"
+  (when (not (epc:live-p jump-epc)) (jump-reset-epc))
+  (epc:call-sync jump-epc method args))
+
+
+(defvar jump-epc
   (jump-start-epc))
 
 
@@ -48,17 +54,17 @@
       (message "buffer no file name")
     (if (not (equal (file-name-extension (buffer-file-name)) "py"))
 	(message "not python file")
-      (let ((def-keys (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) nil)))
+      (let ((def-keys (jump-call 'get_file_def_pos (list (buffer-file-name) nil)))
 	    )
 	(setq-local def-name (completing-read "def name: " def-keys))
-	(setq-local def-pos (epc:call-sync def-epc 'get_file_def_pos (list (buffer-file-name) def-name)))
+	(setq-local def-pos (jump-call 'get_file_def_pos (list (buffer-file-name) def-name)))
 	(goto-line (car def-pos))
 	(move-to-column (nth 1 def-pos))))))
 
 
 (defun jump-refresh-def ()
   "refresh jump def pos when buffer post"
-  (epc:call-sync def-epc 'refresh_file_def_pos (list (buffer-file-name))))
+  (jump-call 'refresh_file_def_pos (list (buffer-file-name))))
 
 
 (defun jump-refresh-def-wrap ()
@@ -79,12 +85,10 @@
   "switch jump python version between 2 and 3"
   (interactive)
   (if (string-equal jump-python-execute "python2.7")
-      (progn (setq jump-python-execute "python3")
-	     (jump-reset-epc)
-	     (message "jump python switch to python 3"))
-    (progn (setq jump-python-execute "python2.7")
-	   (jump-reset-epc)
-	   (message "jump python switch to python 2"))))
+      (setq-local switch-msg "jump python switch to python 3")
+    (setq-local switch-msg "jump python switch to python 2"))
+  (jump-reset-epc)
+  (message switch-msg))
 
 
 (provide 'pydefjump)
