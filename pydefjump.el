@@ -16,10 +16,14 @@
 (defvar jump-python-execute "python2.7")
 
 
-(defun set-jump-exec-file (filename)
+(defun jump-set-exec-file (filename)
   "set jump executable file"
-  (setq jump-exec-file filename)
-  (setq def-epc (jump-start-epc)))
+  (setq jump-exec-file filename))
+
+
+(defun jump-set-python-execute (python-execute)
+  "set jump python executable"
+  (setq jump-python-execute python-execute))
 
 
 (defun jump-start-epc ()
@@ -85,8 +89,12 @@
   "switch jump python version between 2 and 3"
   (interactive)
   (if (string-equal jump-python-execute "python2.7")
-      (setq-local switch-msg "jump python switch to python 3")
-    (setq-local switch-msg "jump python switch to python 2"))
+      (progn
+	(setq-local switch-msg "jump python switch to python 3")
+	(setq-local pexecute "python3"))
+    ((setq-local switch-msg "jump python switch to python 2")
+     (setq-local pexecute "python2.7")))
+  (jump-set-python-execute pexecute)
   (jump-reset-epc)
   (message switch-msg))
 
