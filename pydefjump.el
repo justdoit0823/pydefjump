@@ -92,8 +92,8 @@
       (progn
 	(setq-local switch-msg "jump python switch to python 3")
 	(setq-local pexecute "python3"))
-    ((setq-local switch-msg "jump python switch to python 2")
-     (setq-local pexecute "python2.7")))
+    (progn (setq-local switch-msg "jump python switch to python 2")
+	   (setq-local pexecute "python2.7")))
   (jump-set-python-execute pexecute)
   (jump-reset-epc)
   (message switch-msg))
