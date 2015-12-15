@@ -33,7 +33,8 @@
 
 (defun jump-stop-epc ()
   "stop jump epc server"
-  (epc:stop-epc jump-epc))
+  (epc:stop-epc jump-epc)
+  )
 
 
 (defun jump-reset-epc ()
@@ -59,7 +60,7 @@
     (if (not (equal (file-name-extension (buffer-file-name)) "py"))
 	(message "not python file")
       (let ((def-keys (jump-call 'get_file_def_pos (list (buffer-file-name) nil)))
-	    )
+	    (completion-ignore-case t))
 	(setq-local def-name (completing-read "def name: " def-keys))
 	(setq-local def-pos (jump-call 'get_file_def_pos (list (buffer-file-name) def-name)))
 	(goto-line (car def-pos))
