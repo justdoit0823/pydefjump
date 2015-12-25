@@ -82,14 +82,13 @@ def parse_def_node(node):
 def get_file_def_token(filename):
     readline = open(filename).readline
     token_generator = tokenize.generate_tokens(readline)
-    care_name_set = frozenset(('def', 'class'))
-    token_set1 = frozenset((tokenize.INDENT, tokenize.DEDENT))
-    token_set2 = frozenset((tokenize.NAME, tokenize.INDENT, tokenize.DEDENT))
+    care_name_set = ('def', 'class')
+    token_set1 = (tokenize.INDENT, tokenize.DEDENT)
+    token_set2 = (tokenize.NAME, tokenize.INDENT, tokenize.DEDENT)
     function_def = False
     class_def = False
     function_indent = False
     class_indent = False
-    function_dedent = False
     token_map = {}
     class_queue = deque()
     function_queue = deque()
@@ -106,42 +105,56 @@ def get_file_def_token(filename):
 
             if not function_def:
                 # no function defined before
-
                 if token_type != tokenize.NAME or\
                    token_str not in care_name_set:
                     continue
 
-                if token_str == 'def':
-                    # def function block start
-                    token_type, token_str, start, end, __ = next(token_generator)
-                    if token_type != tokenize.NAME:
-                        # irregular defination
-                        continue
-                    function_def = True
-                    token_map[token_str] = start
-
-                if token_str == 'class':
-                    # def class block start
-                    token_type, token_str, start, end, __ = next(token_generator)
-                    if token_type != tokenize.NAME:
-                        # irregular defination
-                        continue
-                    class_def = True
-                    root_class_name = token_str
-                    token_map[token_str] = start
-
-            else:
-                if token_type not in token_set1:
+                def_token_str = token_str
+                token_type, token_str, start, end, __ = next(token_generator)
+                if token_type != tokenize.NAME:
+                    # irregular defination
                     continue
 
-                if token_type == tokenize.INDENT:
+                if def_token_str == 'def':
+                    # def function block start
+                    function_def = True
+                    token_map[token_str] = start
+                elif def_token_str == 'class':
+                    # def class block start
+                    class_def = True
+                    class_name = token_str
+                    token_map[class_name] = start
+            else:
+                if token_type not in token_set2:
+                    continue
+
+                if token_type == tokenize.NAME:
+                    if token_str not in care_name_set or function_indent:
+                        continue
+
+                    def_token_str = token_str
+                    token_type, token_str, start, end, __ = next(token_generator)
+                    if token_type != tokenize.NAME:
+                        # irregular defination
+                        continue
+
+                    if def_token_str == 'def':
+                        # def function block start
+                        function_def = True
+                        token_map[token_str] = start
+                    elif def_token_str == 'class':
+                        # def class block start
+                        class_def = True
+                        class_name = token_str
+                        token_map[class_name] = start
+
+                elif token_type == tokenize.INDENT:
                     # indent here
                     if not function_indent:
                         function_indent = True
                     else:
                         function_queue.append(True)
-                elif token_type == tokenize.DEDENT and function_indent and\
-                     not function_dedent:
+                elif token_type == tokenize.DEDENT and function_indent:
                     # dedent here
                     try:
                         function_queue.pop()
@@ -150,56 +163,61 @@ def get_file_def_token(filename):
                         function_def = False
         else:
             # class defined before
-
             if not function_def:
                 # no function defined in class
-
                 if token_type not in token_set2:
                     continue
+
                 if token_type == tokenize.INDENT:
                     # indent here
                     class_indent = True
+                    class_queue.append((root_class_name, class_name, True))
                 elif token_type == tokenize.NAME:
                     if token_str not in care_name_set:
                         continue
 
-                    if token_str == 'def':
-                        # def function in class
-                        token_type, token_str, start, end, __ = next(
-                            token_generator)
-                        if token_type != tokenize.NAME:
-                            # irregular defination
-                            continue
-                        function_def = True
-                        new_token_key = root_class_name + '.' + token_str
-                        token_map[new_token_key] = start
+                    def_token_str = token_str
+                    token_type, token_str, start, end, __ = next(
+                        token_generator)
+                    if token_type != tokenize.NAME:
+                        # irregular defination
+                        continue
 
-                    if token_str == 'class':
-                        # def class in class
-                        token_type, token_str, start, end, __ = next(
-                            token_generator)
-                        if token_type != tokenize.NAME:
-                            # irregular defination
+                    root_class_prefix = '.'.join(filter(bool, (q[1] for q in class_queue)))
+
+                    if def_token_str == 'def':
+                        # def function in class
+                        function_def = True
+                        if not class_indent:
+                            token_map[token_str] = start
                             continue
-                        class_def = True
-                        new_token_key = root_class_name + '.' + token_str
+
+                        new_token_key = root_class_prefix + '.' + token_str
                         token_map[new_token_key] = start
-                        class_queue.append((root_class_name, class_indent))
-                        root_class_name = token_str
-                        class_indent = False
+                    elif def_token_str == 'class':
+                        # def class in class
+                        class_def = True
+                        if not class_indent:
+                            class_name = token_str
+                            token_map[class_name] = start
+                            continue
+
+                        new_token_key = root_class_prefix + '.' + token_str
+                        token_map[new_token_key] = start
+                        root_class_name = class_name
+                        class_name = token_str
                 elif token_type == tokenize.DEDENT and class_indent:
                     # dedent here
                     try:
-                        root_class_name, class_indent = class_queue.pop()
-                        class_def = True
+                        root_class_name, __, class_indent = class_queue.pop()
+                        class_name = root_class_name
+                        class_def = bool(class_name)
                     except IndexError:
                         root_class_name = ''
-                        class_indent = False
                         class_def = False
-
+                    class_indent = class_def
             else:
                 # function defined in class
-
                 if token_type not in token_set1:
                     continue
 
@@ -209,7 +227,6 @@ def get_file_def_token(filename):
                         function_indent = True
                     else:
                         class_function_queue.append(True)
-
                 elif token_type == tokenize.DEDENT and function_indent:
                     # dedent here
                     try:
@@ -217,6 +234,7 @@ def get_file_def_token(filename):
                     except IndexError:
                         function_indent = False
                         function_def = False
+
     return token_map
 
 
