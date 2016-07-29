@@ -1,7 +1,7 @@
 pydefjump
 =========
 
-A fast python module def jump plugin in emacs.
+A fast python function and class definition locating plugin in emacs.
 
 
 Requirements
@@ -14,22 +14,31 @@ Python package
 * epc(>=0.0.5)
 
 
+
 Emacs package
 -------------
 
-
 * epc(>=0.1.1)
+
 
 
 Install
 =======
 
+
 * install required python packages
+
 
 		$ pip install epc
 
 
-* install this emacs plugin
+* install required emacs packages
+
+
+		M-x el-get install [Ret] epc
+
+
+* install this plugin
 
 	you can clone this repository to your emacs directory path, like following:
 
@@ -50,3 +59,15 @@ into your .emacs file.
 	(add-hook 'python-mode-hook 'jump-python)
 
 Then you can use C-c d in any python module buffer to jump.
+
+
+Switch python version
+---------------------
+
+	run command M-x jump-python-switch .
+
+
+Refresh definition position
+---------------------------
+
+	run command M-x C-c r .
