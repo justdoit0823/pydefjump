@@ -64,10 +64,10 @@ Then you can use C-c d in any python module buffer to jump.
 Switch python version
 ---------------------
 
-	run command M-x jump-python-switch .
+	run command M-x jump-python-switch
 
 
 Refresh definition position
 ---------------------------
 
-	run command M-x C-c r .
+	press key C-c r
