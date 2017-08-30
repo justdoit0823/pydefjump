@@ -71,7 +71,7 @@ def echo(*args):
 
 
 def parse_def_node(node):
-    if isinstance(node, ast.FunctionDef):
+    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
         # 函数节点
         return ('function', node.name, node.lineno, node.col_offset)
     elif isinstance(node, ast.ClassDef):
