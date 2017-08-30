@@ -1,10 +1,11 @@
+
 # -*- coding: utf-8 -*-
 
-
 import ast
-import tokenize
-from epc.server import EPCServer
 from collections import deque
+import tokenize
+
+from epc.server import EPCServer
 
 
 file_def_cache = {}
