@@ -9,6 +9,9 @@ from epc.server import EPCServer
 
 
 file_def_cache = {}
+_func_def_types = tuple(
+    getattr(ast, type_s) for type_s in (
+        'FunctionDef', 'AsyncFunctionDef') if hasattr(ast, type_s))
 
 
 def get_file_def_list(*args):
@@ -71,7 +74,7 @@ def echo(*args):
 
 
 def parse_def_node(node):
-    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+    if isinstance(node, _func_def_types):
         # 函数节点
         return ('function', node.name, node.lineno, node.col_offset)
     elif isinstance(node, ast.ClassDef):
