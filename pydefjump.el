@@ -13,7 +13,7 @@
 (defvar jump-exec-file (expand-file-name "~/.emacs.d/pydefjump/py_def_list_server.py"))
 
 
-(defvar jump-python-execute "python2.7")
+(defvar jump-python-execute "python3")
 
 
 (defun jump-set-exec-file (filename)
